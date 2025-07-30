@@ -1,0 +1,329 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Restaurant Menu</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      background-color: #f8f8f8;
+    }
+
+    header {
+      background: #333;
+      color: white;
+      padding: 10px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 1.5em;
+    }
+
+    .basket-icon {
+      position: relative;
+      cursor: pointer;
+    }
+
+    .basket-icon span {
+      background: red;
+      color: white;
+      font-size: 0.8em;
+      border-radius: 50%;
+      padding: 2px 6px;
+      position: absolute;
+      top: -10px;
+      right: -10px;
+    }
+
+    .container {
+      padding: 20px;
+    }
+
+    .menu-buttons {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+    }
+
+    .menu-buttons button {
+      padding: 10px 20px;
+      font-size: 1em;
+      cursor: pointer;
+      border: none;
+      background-color: #444;
+      color: white;
+      border-radius: 5px;
+    }
+
+    .dropdowns {
+      display: none;
+    }
+
+    .section {
+      margin-bottom: 20px;
+    }
+
+    details {
+      background: white;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      padding: 10px;
+      margin-bottom: 10px;
+    }
+
+    .item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 10px;
+      cursor: pointer;
+    }
+
+    .item img {
+      width: 60px;
+      height: 60px;
+      object-fit: cover;
+      border-radius: 5px;
+    }
+
+    .basket-window {
+      display: none;
+      position: fixed;
+      right: 20px;
+      top: 60px;
+      background: white;
+      padding: 15px;
+      width: 280px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      z-index: 100;
+    }
+
+    .basket-window h3 {
+      margin-top: 0;
+    }
+
+    .basket-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 5px 0;
+    }
+
+    .basket-total {
+      display: flex;
+      justify-content: space-between;
+      font-weight: bold;
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 2px solid #000;
+    }
+
+    .confirm-button {
+      margin-top: 10px;
+      width: 100%;
+      padding: 10px;
+      background: green;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    select {
+      margin-bottom: 20px;
+      padding: 5px;
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 200;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+    }
+
+    .modal-content {
+      background: white;
+      margin: 10% auto;
+      padding: 20px;
+      width: 90%;
+      max-width: 400px;
+      border-radius: 10px;
+      text-align: center;
+    }
+
+    .modal-content img {
+      width: 100%;
+      border-radius: 10px;
+    }
+
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Restaurant Menu</h1>
+  <div class="basket-icon" onclick="toggleBasket()">
+    🧺<span id="basket-count">0</span>
+  </div>
+</header>
+
+<div class="container">
+  <label for="table">Select Table Number: </label>
+  <select id="table" onchange="updateTableNo()">
+    <option value="">-- Select Table --</option>
+    <option value="1">Table 1</option>
+    <option value="2">Table 2</option>
+    <option value="3">Table 3</option>
+  </select>
+
+  <div class="menu-buttons">
+    <button onclick="showSection('drinks')">Drinks</button>
+    <button onclick="showSection('snacks')">Snacks</button>
+    <button onclick="showSection('food')">Food</button>
+  </div>
+
+  <div id="drinks" class="dropdowns section">
+    <details open>
+      <summary>Hot Drinks</summary>
+      <div class="item" onclick="showModal('Coffee', 'https://via.placeholder.com/200', 'Freshly brewed', 'Water, Coffee beans', 2.5)">
+        <img src="https://via.placeholder.com/60" />
+        Coffee - €2.50
+      </div>
+    </details>
+  </div>
+
+  <div id="snacks" class="dropdowns section">
+    <details open>
+      <summary>Sandwiches</summary>
+      <div class="item" onclick="showModal('Ham Sandwich', 'https://via.placeholder.com/200', 'Classic sandwich', 'Bread, Ham', 3.0)">
+        <img src="https://via.placeholder.com/60" />
+        Ham Sandwich - €3.00
+      </div>
+    </details>
+  </div>
+
+  <div id="food" class="dropdowns section">
+    <details open>
+      <summary>Pasta</summary>
+      <div class="item" onclick="showModal('Spaghetti', 'https://via.placeholder.com/200', 'Italian pasta', 'Noodles, Sauce', 8.0)">
+        <img src="https://via.placeholder.com/60" />
+        Spaghetti - €8.00
+      </div>
+    </details>
+  </div>
+</div>
+
+<div class="basket-window" id="basket">
+  <h3>Basket <span id="basket-table"></span></h3>
+  <div id="basket-items"></div>
+  <div class="basket-total">
+    <span>Total:</span>
+    <span id="total-cost">€0.00</span>
+  </div>
+  <button class="confirm-button" onclick="confirmOrder()">Confirm Order</button>
+</div>
+
+<div class="modal" id="item-modal">
+  <div class="modal-content">
+    <img id="modal-img" />
+    <h2 id="modal-name"></h2>
+    <p id="modal-desc"></p>
+    <p id="modal-ingr"></p>
+    <p id="modal-price"></p>
+    <button onclick="addToBasket()">Add to Basket</button>
+    <button onclick="closeModal()">Close</button>
+  </div>
+</div>
+
+<script>
+  let basket = {};
+  let currentItem = {};
+  let tableNo = "";
+
+  function showSection(id) {
+    document.querySelectorAll('.dropdowns').forEach(sec => sec.style.display = 'none');
+    document.getElementById(id).style.display = 'block';
+  }
+
+  function toggleBasket() {
+    const basketEl = document.getElementById("basket");
+    basketEl.style.display = basketEl.style.display === "block" ? "none" : "block";
+  }
+
+  function updateTableNo() {
+    tableNo = document.getElementById("table").value;
+    document.getElementById("basket-table").textContent = tableNo ? `- Table ${tableNo}` : '';
+  }
+
+  function showModal(name, img, desc, ingr, price) {
+    currentItem = { name, price };
+    document.getElementById("modal-img").src = img;
+    document.getElementById("modal-name").textContent = name;
+    document.getElementById("modal-desc").textContent = desc;
+    document.getElementById("modal-ingr").textContent = "Ingredients: " + ingr;
+    document.getElementById("modal-price").textContent = "Price: €" + price.toFixed(2);
+    document.getElementById("item-modal").style.display = "block";
+  }
+
+  function closeModal() {
+    document.getElementById("item-modal").style.display = "none";
+  }
+
+  function addToBasket() {
+    const item = currentItem.name;
+    if (basket[item]) {
+      basket[item].qty += 1;
+    } else {
+      basket[item] = { ...currentItem, qty: 1 };
+    }
+    updateBasket();
+    closeModal();
+  }
+
+  function updateBasket() {
+    const basketItems = document.getElementById("basket-items");
+    const totalCost = document.getElementById("total-cost");
+    const count = document.getElementById("basket-count");
+
+    basketItems.innerHTML = '';
+    let total = 0;
+    let itemsCount = 0;
+
+    for (let key in basket) {
+      const item = basket[key];
+      total += item.price * item.qty;
+      itemsCount += item.qty;
+
+      const el = document.createElement('div');
+      el.className = "basket-item";
+      el.innerHTML = `<span>${item.qty} x ${key}</span><span>€${(item.price * item.qty).toFixed(2)}</span>`;
+      basketItems.appendChild(el);
+    }
+
+    totalCost.textContent = `€${total.toFixed(2)}`;
+    count.textContent = itemsCount;
+  }
+
+  function confirmOrder() {
+    alert("Order Confirmed!");
+    basket = {};
+    updateBasket();
+    toggleBasket();
+  }
+</script>
+
+</body>
+</html>
